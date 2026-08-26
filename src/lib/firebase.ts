@@ -1,17 +1,19 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
+  User,
+  Auth
 } from 'firebase/auth';
 import { 
   getFirestore, 
   collection, 
   addDoc, 
-  serverTimestamp 
+  serverTimestamp,
+  Firestore
 } from 'firebase/firestore';
 
 // ✅ Load ENV values
@@ -24,27 +26,41 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// ✅ Check config before initializing
-if (!firebaseConfig.apiKey) {
-  console.warn("Firebase not configured properly");
-}
+// ✅ Validate config — only apiKey is strictly required by Firebase
+const isConfigValid = !!firebaseConfig.apiKey;
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// ✅ Only initialize if config is valid
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+
+if (isConfigValid) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+  }
+} else {
+  console.warn('Firebase not configured — auth and Firestore are unavailable.');
+}
 
 // ================= AUTH =================
 
 export const signUp = async (email: string, password: string) => {
+  if (!auth) throw new Error('Firebase Auth is not configured.');
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-    await addDoc(collection(db, 'users'), {
-      uid: userCredential.user.uid,
-      email: userCredential.user.email,
-      createdAt: serverTimestamp(),
-      type: 'signup'
-    });
+    if (db) {
+      await addDoc(collection(db, 'users'), {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        createdAt: serverTimestamp(),
+        type: 'signup'
+      });
+    }
 
     return userCredential;
   } catch (error) {
@@ -54,14 +70,17 @@ export const signUp = async (email: string, password: string) => {
 };
 
 export const signIn = async (email: string, password: string) => {
+  if (!auth) throw new Error('Firebase Auth is not configured.');
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-    await addDoc(collection(db, 'loginActivity'), {
-      uid: userCredential.user.uid,
-      email: userCredential.user.email,
-      loginAt: serverTimestamp()
-    });
+    if (db) {
+      await addDoc(collection(db, 'loginActivity'), {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        loginAt: serverTimestamp()
+      });
+    }
 
     return userCredential;
   } catch (error) {
@@ -71,6 +90,7 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const logOut = async () => {
+  if (!auth) return;
   try {
     await signOut(auth);
   } catch (error) {
@@ -79,6 +99,10 @@ export const logOut = async () => {
 };
 
 export const subscribeToAuth = (callback: (user: User | null) => void) => {
+  if (!auth) {
+    callback(null);
+    return () => {};
+  }
   return onAuthStateChanged(auth, callback);
 };
 
@@ -90,6 +114,7 @@ export const submitContactForm = async (data: {
   businessName: string;
   message: string;
 }) => {
+  if (!db) throw new Error('Firebase Firestore is not configured.');
   try {
     return await addDoc(collection(db, 'contacts'), {
       ...data,
@@ -105,6 +130,7 @@ export const submitContactForm = async (data: {
 // ================= NEWSLETTER =================
 
 export const subscribeNewsletter = async (email: string) => {
+  if (!db) throw new Error('Firebase Firestore is not configured.');
   try {
     return await addDoc(collection(db, 'newsletter'), {
       email,
