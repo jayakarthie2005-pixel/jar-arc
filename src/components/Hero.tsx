@@ -29,7 +29,7 @@ export const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* No local video — global background from App.tsx shows through */}
-      <div className="relative z-10 container-custom text-center px-4 pt-32 pb-20">
+      <div className="relative z-10 container-custom text-center px-5 pt-24 pb-16 md:pt-32 md:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,18 +41,18 @@ export const Hero = () => {
             <span className="text-sm text-white/80">Creative Promotion Agency</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
             We Don't Just Shoot <span className="accent-text">Videos</span>
-            <br />
-            — We Grow Your <span className="accent-text">Business</span>
+            <br className="hidden sm:block" />
+            <span className="sm:hidden"> </span>— We Grow Your <span className="accent-text">Business</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-white/70 mb-12">
+          <p className="text-lg md:text-xl lg:text-2xl text-white/70 mb-8 md:mb-12">
             Content. <span className="accent-text">Creativity.</span> Consistency.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto">
-            <form onSubmit={handleSubmit} className="flex w-full gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto px-2 sm:px-0">
+            <form onSubmit={handleSubmit} className="flex w-full gap-2 sm:gap-3">
               <input
                 type="email"
                 value={email}

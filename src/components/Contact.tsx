@@ -94,7 +94,7 @@ export const Contact = () => {
     <section id="contact" className="section-padding relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent" />
       <div ref={ref} className="container-custom relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
 
           {/* ── Left info ── */}
           <motion.div initial={{ opacity:0, x:-50 }} animate={isInView?{opacity:1,x:0}:{}} transition={{ duration:0.8 }}>
