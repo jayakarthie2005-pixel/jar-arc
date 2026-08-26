@@ -1,29 +1,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
-import { subscribeNewsletter } from "../lib/firebase";
 
-// Hero no longer owns its own video — the global one in App.tsx shows through
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '917339603985';
+
 export const Hero = () => {
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [idea, setIdea] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setIsSubmitting(true);
-    try {
-      await subscribeNewsletter(email);
-      setSubmitStatus("success");
-      setEmail("");
-      setTimeout(() => setSubmitStatus("idle"), 3000);
-    } catch {
-      setSubmitStatus("error");
-      setTimeout(() => setSubmitStatus("idle"), 3000);
-    } finally {
-      setIsSubmitting(false);
-    }
+    if (!idea.trim()) return;
+
+    const message = encodeURIComponent(
+      `Hi! I would like to know more about Jar Arc services.\n\nMy idea/business: ${idea.trim()}`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+    setIdea("");
   };
 
   return (
@@ -54,28 +46,21 @@ export const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto px-2 sm:px-0">
             <form onSubmit={handleSubmit} className="flex w-full gap-2 sm:gap-3">
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                type="text"
+                value={idea}
+                onChange={(e) => setIdea(e.target.value)}
+                placeholder="Enter your idea or business"
                 className="glass-input flex-1 px-5 py-4 rounded-xl"
                 required
               />
               <button
                 type="submit"
-                disabled={isSubmitting}
                 className="primary-button px-6 py-4 rounded-xl flex items-center gap-2 whitespace-nowrap"
               >
-                {isSubmitting ? "Sending..." : (<>Boost My Business <ArrowRight size={18} /></>)}
+                Boost My Business <ArrowRight size={18} />
               </button>
             </form>
           </div>
-
-          {submitStatus !== "idle" && (
-            <p className={`mt-4 text-sm ${submitStatus === "success" ? "text-green-400" : "text-red-400"}`}>
-              {submitStatus === "success" ? "You're in! We'll be in touch soon." : "Something went wrong. Please try again."}
-            </p>
-          )}
         </motion.div>
       </div>
     </section>
