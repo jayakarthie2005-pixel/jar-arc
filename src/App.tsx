@@ -25,6 +25,8 @@ function App() {
         muted
         loop
         playsInline
+        preload="metadata"
+        poster="/og-image.jpg"
         className="fixed top-0 left-0 w-full h-full object-cover -z-20"
         src={GLOBAL_VIDEO_URL}
       />
